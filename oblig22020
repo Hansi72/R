@@ -1,0 +1,167 @@
+#oppgave 1
+
+#I oppgaven skal man ved regresjon prøve å forutsi høyden på en kvinnelig student ved hjelp av høyden på studentens foreldre.
+
+Midparent <- c(66.0, 65.5, 71.5, 68.0, 70.0, 65.5, 67.0, 70.5, 69.5, 64.5, 67.5)
+Daughter  <- c(64.0, 63.0, 69.0, 69.0, 69.0, 65.0, 63.0, 68.5, 69.0, 64.0, 67.0)
+
+
+#a
+#Jeg skal lage et spredningsplot med studentenes høyde mot sine foreldres snitthøyde, og kommentere på sammenhengen mellom disse.
+.main <- "Datters høyde mot foreldres snitthøyde"
+.xlab <- "Foreldres snitthøyde"
+.ylab <- "Datters høyde"
+plot(x = Midparent, y = Daughter, type = "p", , las = 1,
+     main = .main, xlab = .xlab, ylab = .ylab)
+
+#Konklusjon:
+#I spredningsplottet ser man at det er en sammenheng mellom høydene, høye foreldre gir høy datter. Punktene samler seg nede til venstre og oppe til høyre
+#Foreldrenes gjennomsnittshøyde er litt høyere enn døtrenes høyder.
+
+
+#b
+#Her spør de om man kan finne den eksakte høyden på en student om man vet snitthøyden på studentens foreldre.
+
+#Nei, man kan ikke finne eksakte høyden på en datter ved hjelp av foreldrenes høyde.
+#Dette kan man se på spredningsplottet fordi det finnes punkter som ligger på vertikale eller horisontale linjer.
+#eks: studentene med høyde på 69 tommer har foreldre med forskjellig snitthøyde.(71.5, 68, 70 og 69.5).
+
+#c
+#1.Jeg skal bruke verdiene jeg har fått i oppgaven for å finne funksjonen av lineær approksimasjon.
+#2.Bruk funksjonen jeg fant til å gjette høyden på en datter med foreldres høyde på 70".
+#3.Forklare om funksjonen er god til å approksimere en datterhøyde med en foreldrehøyde på 74".
+
+#1.
+.linear_model_y_explained_by_x <- lm(formula = Daughter ~ Midparent)
+a <- coef(.linear_model_y_explained_by_x)[[2]]
+b <- coef(.linear_model_y_explained_by_x)[[1]]
+.regresjonslinje <- function(x) {a * x + b}
+#2.
+.inn_verdi <- 70
+.verdi <- .regresjonslinje(.inn_verdi)
+print(.verdi)
+
+#3.
+plot(x = Midparent, y = Daughter, type = "p", , las = 1,
+     main = .main, xlab = .xlab, ylab = .ylab)
+x = 64:72
+y = a*x+b
+lines(x, y)
+#Jeg ville sagt at funksjonen er helt ok for å estimere foreldrehøyde på 74", høydene folger den lineære funksjonen med bare et par cm feil.
+#74" er ikke langt unna høydene vi har estimert fra, og verdiene gitt er ikke langt i fra den lineære modellen.(se resid(.linear_model_y_explained_by_x))
+
+#Konklusjon:
+#Med tallene fra oppgaven i boken gir innverdi 5 en utverdi på 6.42.
+#Med verdiene fra kodesnutten i oppgaven får man 0,4 * 5 + 3,82 = 5,85.
+#lm() bruker lineær regresjon og finner blant annet hvor linjen skjærer Y aksen (Intercept) og coeffisienten til x.
+#Dette gir oss den lineære funksjonen 0,95 * x + 1,64 = estimert datterhøyde gitt foreldres snitt(x). (Obs: Her har jeg bare vist 2 desimaler)
+
+
+#d
+#Finn verdiene til SSE, SST og bestemmelseskoeffisienten. Hvor godt passer foreldes snitthøyde med variasjonen i døtrenes høyder.
+
+.residualer <- residuals(.linear_model_y_explained_by_x)
+SSE <- sum(.residualer^2)
+SST <- sum((Daughter - mean(Daughter))^2)
+r.squared <- 1 - SSE/SST
+
+print(SSE)
+print(SST)
+print(r.squared)
+
+#R.squared = 0,72 og viser at 72% av variasjonen på døtrenes høyder stemmer med foreldrenes høyder, modellen fungerer ganske bra.(72% "riktig")
+
+#e
+#Legg merke til at for de fleste målinger er foreldres snitthøyde høyere enn døtrenes høyder. Er det dettes som menes med "regression towards the mean"?
+
+#Nei. Regression towards the mean gjelder for modeller, ikke empiriske data.
+#Ved bruk av en en funksjon laget av regresjon vil en datter med høye foreldre være lavere enn foreldrene (ned mot gjennomsnittet), 
+#og en datter med lave foreldre ville vært høyere enn foreldrene.(opp mot gjennomsnittet) 
+
+
+
+#Oppgave 2
+#Plot lineær regresjonsmodell mot residuals og kommenter på om den lineære regresjonsmodellen passer.
+
+#a
+x <- c(0, 7, 17, 114, 133, 142, 190, 218, 237, 285)
+y <- c(20.3, 19.8, 19.5, 15.9, 15.1, 14.7, 11.9, 11.5, 8.3, 6.6)
+
+#a
+.lin_mod_y_vs_x <- lm(formula = y ~ x)
+.residuals = residuals(.lin_mod_y_vs_x)
+
+.main <- "Oxide-layer versus residuals"
+.xlab <- "Oxide-layer"
+.ylab <- "Residuals"
+plot(x = x, y = .residuals, type = "p", , las = 1,
+     main = .main, xlab = .xlab, ylab = .ylab)
+abline(h = 0, col = "red", lty = 2)
+
+#Konklusjon:
+#Variansen i residuals øker når x blir større.
+#Det ser også ut til at målte data ligger under modellen ved lav x, over ved moderat x og under igjen ved høyere x.
+#Jeg ville derfor ikke brukt lineær regresjon.
+
+
+#b
+.standard_res <- rstandard(model = .lin_mod_y_vs_x)
+
+.main <- "Oxide-layer versus Standardized residuals"
+.xlab <- "Oxide-layer"
+.ylab <- "Standardized residuals"
+plot(x = x, y = .standard_res, type = "p", , las = 1,
+     main = .main, xlab = .xlab, ylab = .ylab)
+
+abline(h = 0, col = "red", lty = 2)
+
+#Residuals er økende i varians.
+
+.main <- "Standardized residuals versus Normal dist"
+.xlab <- "Standardized residuals"
+.ylab <- "Normal dist"
+qqnorm(.standard_res, las = 1,
+       main = .main,
+       xlab = .xlab,
+       ylab = .ylab)
+qqline(.standard_res, col = "red", lty = 2) 
+
+#Her ser det ut til at standardized residuals er normalfordelt. (avvik fra modellen er normalfordelt)
+#avvikene øker i fra modellen ved økende x.
+
+
+#Oppgave 3
+#Bruk wilcoxon test for å finne ut om gjennomsnittlig diagnosetiden er under 30 minutter. med Signifikansnivå 0,1.
+
+observasjoner <- c(30.6, 30.1, 15.6, 26.7, 27.1, 25.4, 35.0, 30.8,
+                   31.9, 53.2, 12.5, 23.2, 8.8, 24.9, 30.2)
+
+.x <- observasjoner
+.mu0 <- 30
+.centered <- .x - .mu0
+.signed_ranks <- sign(.centered) * rank(abs(.centered))
+s_pluss <- sum(.signed_ranks[.signed_ranks > 0])
+.level <- 0.1
+.c1 <- 1 + qsignrank(p = .level, n = length(.x))
+
+print(.c1)
+print(s_pluss)
+#S_pluss > c1, Diagnosetiden er ikke under 30 minutter.
+
+
+#Oppgave 4
+####################
+Unexposed <- c( 8, 11, 12, 14, 20, 43, 111)
+Exposed <- c(35, 56, 83, 92, 128, 150, 176, 208)
+
+m <- min(length(Unexposed), length(Exposed))
+n <- max(length(Unexposed), length(Exposed))
+.x <- Exposed
+.y <- Unexposed
+Delta <- 25 
+w <- sum(rank(c(.x - Delta, .y))[1:m])
+.c1 <- 71
+
+print(w)
+print(m*(m+n+1)-.c1)
+#Vi forkaster nullhypotesen og sier den alternative hypotesen om at barna som er utsatt har gjennomsnittlig 25 høyere verdier av cotinine er sann.
