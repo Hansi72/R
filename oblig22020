@@ -34,4 +34,4 @@ c2 <- m*(m+n+1) - .c1
 
 print(c2)
 print(w)
-#forkaster H_0
+#w < c2        forkaster H_0
